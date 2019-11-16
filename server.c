@@ -9,6 +9,10 @@
 int ans[100];
 int k = 0;
 
+
+
+
+
 void task1(){
 	printf("Thread #%u working on task1\n", (int)pthread_self());
 }
@@ -23,6 +27,8 @@ void task2(Task *task){
 	
 	ans[k] = (int)(pthread_self()) % 1000;
 	k ++;
+
+	printf("count :%d\n",task->count);
 	
 	sprintf(cnt,"Count:%d",task->count);
 	strcat(task->fileN,cnt);
@@ -45,17 +51,18 @@ int main(int argc, char* argv[]){
 	puts("Making threadpool with 4 threads");
 	threadpool thpool = thpool_init(n);
 
+		char str[256];
+		Task *task = malloc(sizeof(struct Task));
+		task->target = argv[2];
+		//task->target = fgets(str,255,stdin);
+		task->dir = argv[3];
 
-	Task *task = malloc(sizeof(struct Task));
-	task->target = argv[2];
-	task->dir = argv[3];
-	
-	printf("target = %s\n",task->target);
-	printf("dir = %s\n",task->dir);
 
 	puts("Adding 40 tasks to threadpool");
 	int i;
+//	while(1){
 	for(i = 0;i < n;i++){
+
 		thpool_add_work(thpool, (void*)task2, task);
 	}
 	if(k != 0){
@@ -68,7 +75,7 @@ int main(int argc, char* argv[]){
 		printf("k = %d\n",k);
 	}
 
-
+	thpool_destroy(thpool);
 
 	//	puts("Killing threadpool");
 	//	thpool_destroy(thpool);

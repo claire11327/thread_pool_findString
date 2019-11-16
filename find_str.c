@@ -63,10 +63,6 @@ Task* strDir(Task *task){
 
 	}
 
-	
-
-
-
 
 	DIR *dr = opendir(Dir);
 	if(dr == NULL){
@@ -78,10 +74,9 @@ Task* strDir(Task *task){
 	while((de = readdir(dr)) != NULL ){
 		char filecontext[1024];
 		filename = malloc(strlen(de->d_name)+1);
-		filepath = malloc(strlen(Dir)+strlen("/")+strlen(de->d_name)+1);
+		filepath = malloc(strlen(task->dir)+strlen("/")+strlen(de->d_name)+1);
 		filename = de->d_name;
 		if(strcmp(de->d_name,".") != 0 && strcmp(de->d_name,"..") != 0){
-			int ii = 0;
 			if(strstr(de->d_name,".") == NULL && de->d_type != 8){
 				//a folder
 				Task *t = malloc(sizeof(struct Task));
@@ -99,7 +94,7 @@ Task* strDir(Task *task){
 
 			}
 			else{
-				strcpy(filepath,Dir);
+				strcpy(filepath,task->dir);
 				strcat(filepath,"/");
 				strcat(filepath,filename);
 				memset(filenameTemp, 0, strlen(filenameTemp)+1);

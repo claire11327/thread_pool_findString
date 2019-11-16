@@ -8,6 +8,19 @@ typedef struct Task{
 	int  count;
 }Task;
 
+/*
+typedef struct DoneTask{
+	char *ans;
+	struct DoneTask* next;
+}DT;
+
+typedef struct DoneTaskQueue{
+	int DTQcnt;
+	struct DoneTask* head;
+	struct DoneTask* tail;
+}DTQ;
+	
+*/	
 
 
 Task* strDir(Task *task);
