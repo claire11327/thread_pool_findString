@@ -378,7 +378,6 @@ static void* thread_do(struct thread* thread_p){
 				func_buff = job_p->function;
 				arg_buff  = job_p->arg;
 				func_buff(arg_buff);
-				printf("%ld\n",sizeof(arg_buff));
 				free(job_p);
 			}
 
@@ -451,6 +450,8 @@ static void jobqueue_push(jobqueue* jobqueue_p, struct job* newjob){
 	pthread_mutex_lock(&jobqueue_p->rwmutex);
 	newjob->prev = NULL;
 
+	printf("454 job push\n");
+
 	switch(jobqueue_p->len){
 
 		case 0:  /* if no jobs in queue */
@@ -482,6 +483,7 @@ static struct job* jobqueue_pull(jobqueue* jobqueue_p){
 	pthread_mutex_lock(&jobqueue_p->rwmutex);
 	job* job_p = jobqueue_p->front;
 
+	printf("487 job pull\n");
 	switch(jobqueue_p->len){
 
 		case 0:  /* if no jobs in queue */

@@ -5,8 +5,16 @@ typedef struct Task{
 	char *target;
 	char *dir;
 	char *fileN;
+	char *buffer;
 	int  count;
+	int  sockfd;
 }Task;
+
+
+
+Task* strDir(Task *task);
+
+
 
 /*
 typedef struct DoneTask{
@@ -21,8 +29,5 @@ typedef struct DoneTaskQueue{
 }DTQ;
 	
 */	
-
-
-Task* strDir(Task *task);
 
 #endif

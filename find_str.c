@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <dirent.h>
+#include "thpool.h"
 #include "find_str.h"
 
 #define MAXLinelen 1024
@@ -10,23 +12,6 @@
 //find str in directory
 Task* strDir(Task *task);
 
-/*int main(int argc, char *argv[]){
-	if(argc < 3){
-		printf("you should enter ./ str dir");
-		return -1;
-	}
-
-	char countchar[100];
-	Task *task = malloc(sizeof(struct Task));
-	task->target = argv[1];
-	task->dir = argv[2];
-	task->fileN = malloc(sizeof(char)*255);
-	memset(task->fileN, 0, sizeof(task->fileN));
-	task = strDir(task);
-	sprintf(countchar, "Count:%d", task->count);
-	strcat(task->fileN,countchar);
-	printf("main result :%s\n",task->fileN);
-}*/
 
 Task* strDir(Task *task){
 
@@ -53,7 +38,6 @@ Task* strDir(Task *task){
 		}
 		else{
 			Dir = malloc(strlen("./")+strlen(task->dir)+1);
-			strcpy(Dir,"./");
 			strcat(Dir,task->dir);
 		}
 	}
@@ -71,6 +55,7 @@ Task* strDir(Task *task){
 	}
 
 
+	printf("teeeeest : %d\n",task->sockfd);
 	while((de = readdir(dr)) != NULL ){
 		char filecontext[1024];
 		filename = malloc(strlen(de->d_name)+1);
@@ -89,11 +74,11 @@ Task* strDir(Task *task){
 				memset(t->fileN, 0, sizeof(t->fileN));
 				t->count = 0;
 				t = strDir(t);
-				count += t->count;
 				strcat(task->fileN,t->fileN);
 
 			}
 			else{
+				
 				strcpy(filepath,task->dir);
 				strcat(filepath,"/");
 				strcat(filepath,filename);
@@ -109,23 +94,51 @@ Task* strDir(Task *task){
 					char *ret;
 					while((ret = strstr(filecontext+index, targetStr)) != NULL){
 						
-						//strcpy(filenameTemp, "./");
 						strcpy(filenameTemp, filepath);
-						strcat(filenameTemp, " ");
+						strcat(filenameTemp, ", ");
 
 						count ++;
-						task->count ++;
 						index = ret-filecontext + 1;
 					}
 				}
 	
 				strcat(resultStr, filenameTemp);				
+				
+				char *cnt = malloc(sizeof(char)*20);
+				if(count != 0){ 
+					sprintf(cnt,"Count:%d \n",count);
+					strcat(resultStr,cnt);
+					strcat(task->fileN,resultStr);
+					printf("t->result : %s\n",task->fileN);
+				}
+				
+				//clear count & filenameTemp
+				count = 0;
 				memset(filenameTemp, 0, strlen(filenameTemp)+1);
+				memset(resultStr, 0, strlen(resultStr)+1);
 			}
 		}
 	}
 	
+	printf("find_str 123 str = %s\n", task->fileN);
 	strcat(task->fileN, resultStr);
+	printf("find_str 125 str = %s\n", task->fileN);
 	task->count = count;
 	return task;
 }
+
+
+/*int main(int argc, char *argv[]){
+	if(argc < 3){
+		printf("you should enter ./ str dir");
+		return -1;
+	}
+
+	Task *task = malloc(sizeof(struct Task));
+	task->target = argv[1];
+	task->dir = argv[2];
+	task->fileN = malloc(sizeof(char)*255);
+	memset(task->fileN, 0, sizeof(task->fileN));
+	task = strDir(task);
+	printf("main result :%s\n",task->fileN);
+}*/
