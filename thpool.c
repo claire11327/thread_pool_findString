@@ -84,7 +84,6 @@ typedef struct thpool_{
 	pthread_mutex_t  thcount_lock;       /* used for thread count etc */
 	pthread_cond_t  threads_all_idle;    /* signal to thpool_wait     */
 	jobqueue  jobqueue;                  /* job queue                 */
-	jobqueue  Donejobqueue;                  /* job queue                 */
 } thpool_;
 
 
@@ -145,19 +144,11 @@ struct thpool_* thpool_init(int num_threads){
 		return NULL;
 	}
 
-	/* Initialise the job queue */
-	if (jobqueue_init(&thpool_p->Donejobqueue) == -1){
-		err("thpool_init(): Could not allocate memory for done job queue\n");
-		free(thpool_p);
-		return NULL;
-	}
-
 	/* Make threads in pool */
 	thpool_p->threads = (struct thread**)malloc(num_threads * sizeof(struct thread *));
 	if (thpool_p->threads == NULL){
 		err("thpool_init(): Could not allocate memory for threads\n");
 		jobqueue_destroy(&thpool_p->jobqueue);
-		jobqueue_destroy(&thpool_p->Donejobqueue);
 		free(thpool_p);
 		return NULL;
 	}
@@ -241,16 +232,11 @@ void thpool_destroy(thpool_* thpool_p){
 
 	/* Job queue cleanup */
 	jobqueue_destroy(&thpool_p->jobqueue);
-	jobqueue_destroy(&thpool_p->Donejobqueue);
 	/* Deallocs */
 	int n;
 	for (n=0; n < threads_total; n++){
 		thread_destroy(thpool_p->threads[n]);
 	}
-
-	printf("destroy pool");
-
-
 	free(thpool_p->threads);
 	free(thpool_p);
 }
@@ -450,8 +436,6 @@ static void jobqueue_push(jobqueue* jobqueue_p, struct job* newjob){
 	pthread_mutex_lock(&jobqueue_p->rwmutex);
 	newjob->prev = NULL;
 
-	printf("454 job push\n");
-
 	switch(jobqueue_p->len){
 
 		case 0:  /* if no jobs in queue */
@@ -483,7 +467,6 @@ static struct job* jobqueue_pull(jobqueue* jobqueue_p){
 	pthread_mutex_lock(&jobqueue_p->rwmutex);
 	job* job_p = jobqueue_p->front;
 
-	printf("487 job pull\n");
 	switch(jobqueue_p->len){
 
 		case 0:  /* if no jobs in queue */
