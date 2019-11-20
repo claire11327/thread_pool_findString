@@ -47,41 +47,18 @@ int main(int argc, char *argv[]){
 			else{
 				if(msg[strlen(msg)-1] == '\n')
 					msg[strlen(msg)-1] = '\0';
-				printf("input msg : [%s]\n",msg);
+				//if num of["] is even, and first of str is "Query "
+				CTask* ctask = malloc(sizeof(struct CTask));
+				ctask->str = malloc(strlen(msg)+1);
 
-				//cut str
+				strcpy(ctask->str,msg); 
+				ctask->ip = ip;
+				ctask->port = port;
 
-				//char buf[30] = "Query \"test\" \"te\" \"e\" \"w\" ";
-				char *substr = NULL;
-				char *saveptr = NULL;
-				int count = 0;
-				substr = strtok_r(msg, delim, &saveptr);
-				if(strcmp(substr,"Query ") == 0){
-					substr = strtok_r(NULL, delim, &saveptr);
-					do {
-						printf("sub string : [%s]\n",substr);
-						CTask* ctask = malloc(sizeof(struct CTask));
-						ctask->str = malloc(strlen(substr)+1);
-
-						strcpy(ctask->str,substr); 
-						ctask->ip = ip;
-						ctask->port = port;
-
-						/* create a thread to handle query (write to server) */	
-						pthread_t t;
-						pthread_create(&t, NULL, (void*)client_thread, ctask);
-						memset(msg, '\0', strlen(msg)+1);
-
-						substr = strtok_r(NULL, delim, &saveptr);
-						substr = strtok_r(NULL, delim, &saveptr);
-
-
-					} while (substr);
-				}
-				else{
-					printf("unformulated input\n");
-				}
-
+				/* create a thread to handle query (write to server) */	
+				pthread_t t;
+				pthread_create(&t, NULL, (void*)client_thread, ctask);
+				memset(msg, '\0', strlen(msg)+1);
 
 			}
 		}
@@ -122,21 +99,8 @@ void client_thread(CTask* ctask){
 	if(ctask->str[strlen(ctask->str)-1] == '\n')
 		ctask->str[strlen(ctask->str)-1] = '\0';
 
+	printf("%s\n --------\n",buf);
 
-	printf("Query \"%s\"\n",ctask->str);
-	printf("%s\n",buf);
-
-
-	/*	while(1){
-		memset(buf, '\0', sizeof(buf));
-
-		fgets(buf,sizeof(buf),stdin);
-		write(cli,buf,strlen(buf));   
-		sleep(2);
-		ret = read(cli,buf,sizeof(buf));
-		printf("ret %s\n",buf);		
-		memset(buf, '\0', strlen(buf));
-		}*/
 	close(cli);
 	return ;
 }

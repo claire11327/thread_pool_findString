@@ -11,6 +11,7 @@ char* readFileList(char *basePath, char* str, char* result)
 {
 	DIR *dir;
 	int c = 0;
+	int size_str = 0;
 	struct dirent *ptr;
 	char base[1000];
 	char filepath[1000];
@@ -19,6 +20,12 @@ char* readFileList(char *basePath, char* str, char* result)
 	memset(filepath,'\0',sizeof(filepath));
 	memset(cnt,'\0',sizeof(cnt));
 
+	if(strlen(result) == 0){
+		strcpy(result, "String: \"");
+		strcat(result, str);
+		strcat(result, "\"\n");
+		size_str = strlen(result);
+	}
 
 	if ((dir=opendir(basePath)) == NULL)
 	{
@@ -35,7 +42,7 @@ char* readFileList(char *basePath, char* str, char* result)
 			strcat(filepath,"/");
 			strcat(filepath,ptr->d_name);
 			if((c= countStr(filepath,str)) != 0)	{
-				printf("cnt %d\n",c);
+				strcat(result, "File: ./");
 				strcat(result, filepath);
 				sprintf(cnt, ", Count:%d\n",c);
 				strcat(result, cnt);
@@ -46,7 +53,7 @@ char* readFileList(char *basePath, char* str, char* result)
 			strcat(filepath,"/");
 			strcat(filepath,ptr->d_name);
 			if((c = countStr(filepath,str)) != 0)	{
-				printf("cnt %d\n",c);
+				strcat(result, "File: ./");
 				strcat(result, filepath);
 				sprintf(cnt, ", Count:%d\n",c);
 				strcat(result, cnt);
@@ -62,9 +69,8 @@ char* readFileList(char *basePath, char* str, char* result)
 			readFileList(base,str,result);
 		}
 	}
-	if(strlen(result)==0){
-		printf("nothing\n");
-		strcpy(result, "Not found\n" );
+	if(strlen(result)==size_str){
+		strcat(result, "Not found\n" );
 	}
 	return result;
 	closedir(dir);
@@ -88,36 +94,34 @@ int countStr(char *filepath, char* str){
 		while((ret = strstr(content+index, str)) != NULL){
 			count ++;
 			index = ret-content +1;
-			printf("ret %s\n",ret);
-			
+
 		}
 	}
-	printf("count %d\n",count);
 	return count;
 }
 
 
 /*
-int main(int argc, char **argv)
-{
-	DIR *dir;
-	char basePath[1000];
-	char result[1000];
-	char str[1000];
+   int main(int argc, char **argv)
+   {
+   DIR *dir;
+   char basePath[1000];
+   char result[1000];
+   char str[1000];
 
-	///get the current absoulte path
-	memset(basePath,'\0',sizeof(basePath));
-	memset(result,'\0',sizeof(result));
-	memset(str,'\0',sizeof(str));
+///get the current absoulte path
+memset(basePath,'\0',sizeof(basePath));
+memset(result,'\0',sizeof(result));
+memset(str,'\0',sizeof(str));
 
-	strcpy(basePath, argv[1]);
+strcpy(basePath, argv[1]);
 
-	fgets(str, 1000, stdin);
-	if(str[strlen(str)-1] == '\n'){
-		str[strlen(str)-1] = '\0';
-	}
+fgets(str, 1000, stdin);
+if(str[strlen(str)-1] == '\n'){
+str[strlen(str)-1] = '\0';
+}
 
-	readFileList(basePath, str, result);
-	printf("the is : [%s]\n",result);
-	return 0;
+readFileList(basePath, str, result);
+printf("the is : [%s]\n",result);
+return 0;
 }*/

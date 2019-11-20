@@ -22,12 +22,7 @@ typedef struct Job{
 void server_thread(Job* job){
 	//int main(int argc, char**argv){
 
-
-
-	//	Job* job = malloc(sizeof(struct Job));
-	//	job->port = atoi(argv[2]);	
-	//	job->root = argv[1];	
-	/*delete*/
+	const char * const delim = "\"";
 
 	int server_sport = job->port;	
 
@@ -46,7 +41,6 @@ void server_thread(Job* job){
 	listen(sock,20);
 
 	socklen_t cli_len = sizeof(client_addr);
-//	cli = accept(sock,(struct sockaddr*)&client_addr,&cli_len);    
 	char buf[BUFSIZ];    
 	char str[BUFSIZ];
 	char result[BUFSIZ];
@@ -60,16 +54,34 @@ void server_thread(Job* job){
 			strcpy(str,buf);
 			if(str[strlen(str)-1]=='\n')
 				str[strlen(str)-1] = '\0';
-			printf("str :[%s]\n",str);
 			memset(buf,0,n);
-			readFileList(job->root, str, result);
 
-			strcpy(buf,result);
-			printf("server 64 %s\n",buf);
+			//cut str
+			memset(buf,'\0',sizeof(buf));
+
+			char *saveptr = NULL;
+			char *substr = NULL;
+			int count = 0;
+
+			substr = strtok_r(str, delim, &saveptr);
+			printf("sub string %s\n", substr);
+			if(strcmp(substr,"Query ") == 0){
+				substr = strtok_r(NULL, delim, &saveptr);
+				do{
+					//printf("sub string %s\n", substr);
+					//readFileList(job->root, str, result);
+					readFileList(job->root, substr, result);
+					strcat(buf,result);
+					memset(result,'\0',strlen(result));
+					substr = strtok_r(NULL, delim, &saveptr);
+					substr = strtok_r(NULL, delim, &saveptr);
+				}while(substr);
+
+
+			}
 			write(cli,buf,strlen(buf));
 			memset(buf,'\0',sizeof(buf));
 			memset(result,'\0',strlen(result));
-			printf("[%s]\n",buf);
 			n = 0;
 		}
 
@@ -117,12 +129,3 @@ int main(int argc, char *argv[]){
 
 }
 
-/*void server_thread(Job* job){
-	printf("port :%d  dir = %s\n",job->port, job->root);
-
-	int sockfd = 0;
-	char *buffer;	
-	buffer = malloc(sizeof(char)*MAXLen);
-
-	tcp_ser(job->port, sockfd);
-}*/
