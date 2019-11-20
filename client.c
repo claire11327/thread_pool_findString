@@ -48,16 +48,37 @@ int main(int argc, char *argv[]){
 				if(msg[strlen(msg)-1] == '\n')
 					msg[strlen(msg)-1] = '\0';
 				//if num of["] is even, and first of str is "Query "
-				CTask* ctask = malloc(sizeof(struct CTask));
-				ctask->str = malloc(strlen(msg)+1);
+				int count = 0;
+				int index = 0;
+				char* ret;
 
-				strcpy(ctask->str,msg); 
-				ctask->ip = ip;
-				ctask->port = port;
+				char* dup_msg = malloc(strlen(msg));
+				char* saveptr = NULL;
+				char* substr = NULL;
+			
+				strcpy(dup_msg, msg);	
+				substr = strtok_r(dup_msg, "\"", &saveptr);
+				while((ret = strstr(msg+index, "\"")) != NULL){
+					index = ret-msg+1;
+					count ++;
+				}
+				if((count != 0) && (count % 2 == 0) && (strcmp(substr,"Query ") == 0) ){
 
-				/* create a thread to handle query (write to server) */	
-				pthread_t t;
-				pthread_create(&t, NULL, (void*)client_thread, ctask);
+
+					CTask* ctask = malloc(sizeof(struct CTask));
+					ctask->str = malloc(strlen(msg)+1);
+
+					strcpy(ctask->str,msg); 
+					ctask->ip = ip;
+					ctask->port = port;
+
+					/* create a thread to handle query (write to server) */	
+					pthread_t t;
+					pthread_create(&t, NULL, (void*)client_thread, ctask);
+				}
+				else{
+					printf("The string formate is not correct \n");
+				}
 				memset(msg, '\0', strlen(msg)+1);
 
 			}
@@ -99,28 +120,10 @@ void client_thread(CTask* ctask){
 	if(ctask->str[strlen(ctask->str)-1] == '\n')
 		ctask->str[strlen(ctask->str)-1] = '\0';
 
-	printf("%s\n --------\n",buf);
+	printf("%s\n",buf);
 
 	close(cli);
 	return ;
 }
 
 
-/*
-   void client_thread(CTask* ctask){
-//lock
-char buffer[MAXLen];
-ctask->sockfd = tcp_cli(ctask->ip,ctask->port,ctask->sockfd);
-strcpy(buffer,ctask->str);
-buffer[strlen(buffer)-1] = '\0';
-printf("client 71G [%s]\n",buffer);
-
-
-write(ctask->sockfd,buffer, strlen(buffer));
-sleep(10);
-read(ctask->sockfd,buffer, strlen(buffer)+1);
-printf("msg from server %s\n",buffer);
-//free(ctask);
-pthread_exit(NULL);
-
-}*/

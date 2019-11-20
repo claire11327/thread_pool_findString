@@ -58,18 +58,16 @@ void server_thread(Job* job){
 
 			//cut str
 			memset(buf,'\0',sizeof(buf));
+			printf("%s\n", str);
 
 			char *saveptr = NULL;
 			char *substr = NULL;
 			int count = 0;
 
 			substr = strtok_r(str, delim, &saveptr);
-			printf("sub string %s\n", substr);
 			if(strcmp(substr,"Query ") == 0){
 				substr = strtok_r(NULL, delim, &saveptr);
 				do{
-					//printf("sub string %s\n", substr);
-					//readFileList(job->root, str, result);
 					readFileList(job->root, substr, result);
 					strcat(buf,result);
 					memset(result,'\0',strlen(result));
